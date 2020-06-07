@@ -9,18 +9,31 @@
  * License: GPL2
  * Text Domain: tkt-srss
  */
+?>
+<script>
+var d = new Date();
+var n = d.getTimezoneOffset();
+var name = "timezone";
+document.cookie = name + "=" + n/60;
+</script>
 
-	//error_log(print_r(unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.$_SERVER['REMOTE_ADDR'])), true));
-	//error_log(print_r(unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip=118.68.122.75')), true));
-	
+<?php
 
 	function display_sunrise_and_set() {
 
-		$object = unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.$_SERVER['REMOTE_ADDR']));
+		$ip = $_SERVER['REMOTE_ADDR']; 
+		$cookie_name = 'timezone';
+
+
+		$offset = $_COOKIE[$cookie_name];
+		$offset = floatval(substr($offset, 1,2)); 
+		
+		$object = unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.$ip));
 		$lat = $object['geoplugin_latitude'];
 		$long = $object['geoplugin_longitude'];
-		$sunset = date_sunset(time(), SUNFUNCS_RET_STRING, $lat, $long, 90, 0);
-		$sunrise =  date_sunrise(time(), SUNFUNCS_RET_STRING, $lat, $long, 90, 0);
+
+		$sunset = date_sunset(time(), SUNFUNCS_RET_STRING, $lat, $long, 90, $offset);
+		$sunrise =  date_sunrise(time(), SUNFUNCS_RET_STRING, $lat, $long, 90, $offset);
 		$out = 'Today Sun rose at '.$sunrise.' and it will set at '.$sunset;
 		return $out;
 	}
