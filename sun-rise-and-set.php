@@ -3,43 +3,39 @@
  * Plugin Name: Sun Rise and Sun Set
  * Description: Plotting Sun Rise and Sun Set according to User Location
  * Plugin URI: http://www.tukutoi.com
- * Author: TukuToi
- * Author URI: http://www.tukutoi.com/author/Beda_Schmid
+ * Author: Author
+ * Author URI: http://www.tukutoi.com
  * Version: 1.0.0
  * License: GPL2
  * Text Domain: tkt-srss
  */
-?>
 
-<script>
-	var d = new Date();
-	var n = d.getTimezoneOffset();
-	var name = "timezone";
-	document.cookie = name + "=" + n/60;
-</script>
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-<?php
+$tkt_srss_plugin_path = plugin_dir_path(__FILE__);
 
-	function display_sunrise_and_set() {
+define('TKT_SRSS_GOOGLE_API_KEY', 'u2498ujcv98jw');//change API key to your API google key
 
-		$ip = $_SERVER['REMOTE_ADDR']; 
-		$cookie_name = 'timezone';
+require_once($tkt_srss_plugin_path.'/functions.php');
 
 
-		$offset = $_COOKIE[$cookie_name];
-		$offset = floatval(substr($offset, 1,2)); 
-		
-		$object = unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip='.$ip));
-		$lat = $object['geoplugin_latitude'];
-		$long = $object['geoplugin_longitude'];
+/**
+ * Returns the parsed shortcode.
+ *
+ * @param array   {
+ *     Attributes of the shortcode.
+ *
+ *     @type string $id ID of...
+ * }
+ * @param string  Shortcode content.
+ *
+ * @return string HTML content to display the shortcode.
+ */
+function shortcode_callback_func(  ) {
+	
+	$out = 'The sun rises at: '.tkt_srss_get_sunrise_and_set('rise').' and sets at '.tkt_srss_get_sunrise_and_set('set').' in '.tkt_srss_get_geoloc_by_ip('loc').'';
+	return $out;
 
-		$sunset = date_sunset(time(), SUNFUNCS_RET_STRING, $lat, $long, 90, $offset);
-		$sunrise =  date_sunrise(time(), SUNFUNCS_RET_STRING, $lat, $long, 90, $offset);
-		
-		$out = 'Today Sun rose at '.$sunrise.' and it will set at '.$sunset;
-		
-		return $out;
-		
-	}
+}
+add_shortcode( 'sunrise-and-set', 'shortcode_callback_func' );
 
-	add_shortcode( 'sunrise-and-set', 'display_sunrise_and_set' );
